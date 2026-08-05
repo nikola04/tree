@@ -1,5 +1,6 @@
 #include "Printer.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <iostream>
@@ -46,14 +47,23 @@ namespace tree {
     void ObjectPrinter::print_children(const fs::path path) {
         if (exceeds_depth()) return;
         
-        std::vector<fs::path> childrends;
+        std::vector<fs::directory_entry> childrens;
         for (const auto& child : fs::directory_iterator(path)) {
-            childrends.push_back(child.path());
+            childrens.push_back(child);
         }
 
-        for (size_t i = 0; i < childrends.size(); ++i) {
-            fs::path child = childrends[i];
-            bool is_last { i + 1 == childrends.size() };
+        if (PrintSort sort = m_print_options.sort.value_or(PrintSort::MIX); 
+            sort == PrintSort::FILES || sort == PrintSort::DIRS) 
+        {
+            std::sort(childrens.begin(), childrens.end(), [sort](fs::directory_entry a, fs::directory_entry b) {
+                return (sort == PrintSort::DIRS && a.is_directory()) 
+                    || (sort == PrintSort::FILES && !a.is_directory());
+            });
+        }
+
+        for (size_t i = 0; i < childrens.size(); ++i) {
+            fs::path child = childrens[i];
+            bool is_last { i + 1 == childrens.size() };
 
             m_depth_stack.push_back(is_last);
             print_prefix(is_last);

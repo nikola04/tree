@@ -9,9 +9,16 @@
 namespace fs = std::filesystem;
 
 namespace tree {
+    enum class PrintSort {
+        MIX,
+        DIRS,
+        FILES,
+    };
+
     struct PrintOptions {
         std::optional<size_t> max_depth {};
         std::optional<fs::path> path {};
+        std::optional<PrintSort> sort {};
     };
 
     struct Root {

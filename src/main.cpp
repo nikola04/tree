@@ -29,6 +29,25 @@ tree::PrintOptions create_print_options(std::span<char*> arguments) {
             } catch(...) {
                 std::cerr << "wrong usecase of -L. Argument after -L must be a valid number. \n";
             }
+
+        } else if (arg == "-s") {
+            if (arguments.size() == i) {
+                std::cerr << "wrong usecase of -s. 'mix', 'dirs' or 'files' argument required after -s. \n";
+                break;
+            }
+
+            std::string sort_arg { arguments[i] };
+            i++;
+
+            if (sort_arg == "mix")
+                print_options.sort = tree::PrintSort::MIX;
+            else if (sort_arg == "files")
+                print_options.sort = tree::PrintSort::FILES;
+            else if (sort_arg == "dirs")
+                print_options.sort = tree::PrintSort::DIRS;
+            else
+                std::cerr << "wrong usecase of -s. 'mix', 'dirs' or 'file' argument required after -s. \n";
+
         } else if (arg == "-p") {
             if (arguments.size() == i) {
                 std::cerr << "wrong usecase of -p. String argument required after -p. \n";
@@ -41,8 +60,8 @@ tree::PrintOptions create_print_options(std::span<char*> arguments) {
             }
 
             print_options.path = fs::weakly_canonical(arguments[i]);
-
             i++;
+
         } else {
             std::cerr << "Invalid argument " << arg << "\n";
             continue;
@@ -55,10 +74,11 @@ tree::PrintOptions create_print_options(std::span<char*> arguments) {
 int main(int argc, char* * argv) {
     auto print_options { create_print_options({ argv, static_cast<size_t>(argc) }) };
 
-    std::println("-----OPTIONS-----");
-    std::println("maximum depth: {}", print_options.max_depth.value_or(0));
-    std::println("path: {}", print_options.path.value_or("null").c_str());
-    std::println();
+    // std::println("-----OPTIONS-----");
+    // std::println("maximum depth: {}", print_options.max_depth.value_or(0));
+    // std::println();
+
+    std::println("Drawing a tree for a path: \n{}\n", print_options.path.value_or("./").string());
 
     tree::ObjectPrinter fp { print_options };
     fp.print();
