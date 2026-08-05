@@ -1,26 +1,40 @@
 #include "Printer.hpp"
 
+#include <array>
 #include <cstddef>
 #include <iostream>
 #include <variant>
 #include <filesystem>
 #include <vector>
 
+const std::string RESET   = "\033[0m";
+const std::string BOLD    = "\033[1m";
+const std::string RED     = "\033[31m";
+const std::string GREEN   = "\033[32m";
+const std::string YELLOW  = "\033[33m";
+const std::string BLUE    = "\033[34m";
+const std::string MAGENTA = "\033[35m";
+const std::string CYAN    = "\033[36m";
+
 namespace tree {
+    std::array<std::string, 4> depth_colors {
+        BLUE, CYAN, GREEN, YELLOW
+    };
+
     ObjectPrinter::ObjectPrinter(tree::PrintOptions print_options): m_print_options(print_options) {
     }
 
     void ObjectPrinter::operator ()(const Root& root) {
-        std::cout << ".\n";
+        std::cout << "*\n";
         print_children(root.path);
     }
 
     void ObjectPrinter::operator ()(const File& file) {
-        std::cout << " " << file.path.filename() << "\n";
+        std::cout << "─ " << RESET << file.path.filename().string() << "\n";
     }
 
     void ObjectPrinter::operator ()(const Directory& dir) {
-        std::cout << " " << dir.path.filename() << "\n";
+        std::cout << "─ " << dir.path.filename().string() << RESET << "\n";
         print_children(dir.path);
     }
 
@@ -52,13 +66,17 @@ namespace tree {
 
     // │ └ ─ ├
     void ObjectPrinter::print_prefix(bool is_last) {
-        for (size_t i = 0; i < m_depth_stack.size() - 1; ++i)
-            std::cout << "│  ";
+        size_t n { m_depth_stack.size() };
+        for (size_t i = 0; i < n; ++i) {
+            std::string color { depth_colors[i % depth_colors.size()] };
 
-        if (is_last) 
-            std::cout << "└──";
-        else
-            std::cout << "├──";
+            if (i + 1 < n)
+                std::cout << color << "│  ";
+            else if (is_last)
+                std::cout << color << "└──";
+            else
+                std::cout << color << "├──";
+        }
     }
 
     PrintableFileObject ObjectPrinter::create_printable(const fs::path path) {
