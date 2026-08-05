@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <format>
 #include <iostream>
 #include <variant>
 #include <filesystem>
@@ -31,11 +32,20 @@ namespace tree {
     }
 
     void ObjectPrinter::operator ()(const File& file) {
-        std::cout << "─ " << RESET << file.path.filename().string() << "\n";
+        std::cout << std::format("─ {}{}\n", 
+            RESET,
+            file.path.filename().string()
+        );
     }
 
     void ObjectPrinter::operator ()(const Directory& dir) {
-        std::cout << "─ " << dir.path.filename().string() << RESET << "\n";
+        bool is_expanded = !exceeds_depth();
+
+        std::cout << std::format("─ {} {}\n", 
+            dir.path.filename().string(),
+            RESET
+        );
+
         print_children(dir.path);
     }
 
@@ -55,9 +65,12 @@ namespace tree {
         if (PrintSort sort = m_print_options.sort.value_or(PrintSort::MIX); 
             sort == PrintSort::FILES || sort == PrintSort::DIRS) 
         {
-            std::sort(childrens.begin(), childrens.end(), [sort](fs::directory_entry a, fs::directory_entry b) {
-                return (sort == PrintSort::DIRS && a.is_directory()) 
-                    || (sort == PrintSort::FILES && !a.is_directory());
+            std::sort(childrens.begin(), childrens.end(), [sort](const fs::directory_entry& a, const fs::directory_entry& b) {
+                if (sort == PrintSort::DIRS)
+                    return a.is_directory() && !b.is_directory();
+                if (sort == PrintSort::FILES)
+                    return !a.is_directory() && b.is_directory();
+                return false;
             });
         }
 
