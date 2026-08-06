@@ -1,12 +1,10 @@
 #include "Parser.hpp"
+#include "common/Colors.hpp"
 #include <iostream>
-
-const std::string RESET   = "\033[0m";
-const std::string RED     = "\033[31m";
 
 namespace cli {
     void write_error(const std::string& error) {
-        std::cerr << RED << error << RESET << "\n";
+        std::cerr << common::RED << error << common::RESET << "\n";
     }
 
     tree::PrintOptions create_print_options(std::span<char*> arguments) {

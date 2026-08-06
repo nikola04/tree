@@ -9,4 +9,6 @@ add_executable(tree src/main.cpp
     src/tree/ObjectPrinter.cpp
     src/cli/Parser.cpp)
 
+target_include_directories(tree PRIVATE src)
+
 install(TARGETS tree DESTINATION bin)

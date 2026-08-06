@@ -1,4 +1,5 @@
 #include "Printer.hpp"
+#include "common/Colors.hpp"
 
 #include <algorithm>
 #include <array>
@@ -9,15 +10,10 @@
 #include <filesystem>
 #include <vector>
 
-const std::string RESET   = "\033[0m";
-const std::string GREEN   = "\033[32m";
-const std::string YELLOW  = "\033[33m";
-const std::string BLUE    = "\033[34m";
-const std::string CYAN    = "\033[36m";
 
 namespace tree {
     std::array<std::string, 4> depth_colors {
-        BLUE, CYAN, GREEN, YELLOW
+        common::BLUE, common::CYAN, common::GREEN, common::YELLOW
     };
 
     ObjectPrinter::ObjectPrinter(tree::PrintOptions print_options): m_print_options(print_options) {
@@ -30,7 +26,7 @@ namespace tree {
 
     void ObjectPrinter::operator ()(const File& file) {
         std::cout << std::format("─ {}{}\n", 
-            RESET,
+            common::RESET,
             file.path.filename().string()
         );
     }
@@ -40,7 +36,7 @@ namespace tree {
 
         std::cout << std::format("─ {} {}\n", 
             dir.path.filename().string(),
-            RESET
+            common::RESET
         );
 
         print_children(dir.path);
